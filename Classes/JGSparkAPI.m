@@ -77,7 +77,7 @@ static NSURL *baseURL;
   
 }
 
-- (void)runCommand:(NSString *)command args:(NSArray *)args usingBlock:(void (^)(NSDictionary *responseObject))callback
+- (void)runCommand:(NSString *)command args:(NSArray *)args usingBlock:(void (^)(NSDictionary *responseObject, NSError* error))callback
 {
   AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
   manager.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -92,15 +92,16 @@ static NSURL *baseURL;
   
   [manager POST:[url description] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
     if (callback) {
-      callback(responseObject);
+      callback(responseObject,nil);
     }
   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-    NSLog(@"Error: %@", error);
+      callback(nil,error);
+    //NSLog(@"Error: %@", error);
   }];
   
 }
 
-- (void)getVariable:(NSString *)variable usingBlock:(void (^)(NSDictionary *responseObject))callback
+- (void)getVariable:(NSString *)variable usingBlock:(void (^)(NSDictionary *responseObject, NSError* error))callback
 {
   AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
   manager.responseSerializer = [AFJSONResponseSerializer serializer];
@@ -111,10 +112,13 @@ static NSURL *baseURL;
   
   [manager GET:[url description] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
     if (callback) {
-      callback(responseObject);
+      callback(responseObject, nil);
     }
   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-    NSLog(@"Error: %@", error);
+      if (callback) {
+          callback(nil, error);
+      }
+      //NSLog(@"Error: %@", error);
   }];
   
 }
